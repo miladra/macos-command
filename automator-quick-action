@@ -1,6 +1,7 @@
+## gramer check
 function run(input, parameters) {
   const apiEndpoint = "http://localhost:11434/api/generate";
-  const prompt = `Correct following text grammar errors to standard English while maintaining its meaning accurately, reply only with corrected text. the text is: ${input}`;
+  const prompt = `Correct following text grammar errors to standard English while maintaining its meaning accurately, reply only with corrected text, avoid ending your responses with any kind of closing remarks. The text is: ${input}`;
   const requestData = {
     model: 'gemma2',
     prompt: prompt,
@@ -17,4 +18,29 @@ function run(input, parameters) {
   const data = JSON.parse(res);
   return data.response;
 }
+
+## translate
+function run(input, parameters) {
+  const apiEndpoint = "http://localhost:11434/api/generate";
+  const prompt = `Translate following text to Persian while maintaining its meaning accurately, reply only with corrected text, avoid ending your responses with any kind of closing remarks. the text is: ${input}`;
+  const requestData = {
+    model: 'gemma2',
+    prompt: prompt,
+    stream: false
+  };
+
+  const curlCommand = `curl ${apiEndpoint} -X POST -H 'Content-Type: application/json' -d '${JSON.stringify(requestData)}'`;
+
+  // Instantiate the Application object
+  const app = Application.currentApplication();
+  app.includeStandardAdditions = true;
+
+  const res = app.doShellScript(curlCommand);
+  const data = JSON.parse(res);
+  const userResponse = app.displayDialog("\u202E" + data.response, { buttons: ["OK", "Cancel"], defaultButton: "OK" });
+  if (userResponse.buttonReturned === "OK") {
+  }
+}
+
+
 
