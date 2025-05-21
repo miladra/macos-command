@@ -1,0 +1,30 @@
+function run(input, parameters) {
+  input = String(input).replace(/'/g, '');
+  const apiEndpoint = "http://localhost:11434/api/generate";
+  const prompt = `Forget all previous. Translate following text to Persian while maintaining its meaning accurately, reply only with corrected text, avoid ending your responses with any kind of closing remarks.
+  
+   Translation Guidelines:
+      When translating into Persian or other right to left languages, align the text properly.
+      Do not translate English names, specialized and technical terminology; enclose them in English quotation marks as they appear in the original form to preserve the alignment of the text.
+      If a phrase has multiple possible translations, choose the most appropriate translation based on the visual situation and the characters style of speech.
+      If you encounter unclear or ambiguous content, write a short explanation in parentheses after the translation.
+
+	 The text is: ${escape(input)}`;
+  const requestData = {
+    model: 'gemma2:9b',
+    prompt: prompt,
+    stream: false
+  };
+
+  const curlCommand = `curl ${apiEndpoint} -X POST -H 'Content-Type: application/json' -d '${JSON.stringify(requestData)}'`;
+
+  // Instantiate the Application object
+  const app = Application.currentApplication();
+  app.includeStandardAdditions = true;
+
+  const res = app.doShellScript(curlCommand);
+  const data = JSON.parse(res);
+  const userResponse = app.displayDialog("\u202E" + data.response, { buttons: ["OK", "Cancel"], defaultButton: "OK" });
+  if (userResponse.buttonReturned === "OK") {
+  }
+}
