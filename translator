@@ -1,17 +1,22 @@
 function run(input, parameters) {
   input = String(input).replace(/'/g, '');
   const apiEndpoint = "http://localhost:11434/api/generate";
-  const prompt = `Forget all previous. Translate following text to Persian while maintaining its meaning accurately, reply only with corrected text, avoid ending your responses with any kind of closing remarks.
-  
-   Translation Guidelines:
-      When translating into Persian or other right to left languages, align the text properly.
-      Do not translate English names, specialized and technical terminology; enclose them in English quotation marks as they appear in the original form to preserve the alignment of the text.
-      If a phrase has multiple possible translations, choose the most appropriate translation based on the visual situation and the characters style of speech.
-      If you encounter unclear or ambiguous content, write a short explanation in parentheses after the translation.
+  const prompt = `Translate following text in Persian in smaller portions, while maintaining its meaning accurately. Anywhere you did not know the translation of the word, write the word with Persian letters. Your response must be short.
+Your response must be following format:
+1.
+{Original portion 1}.
+{Translated portion 1}.
 
-	 The text is: ${escape(input)}`;
+2.
+{Original portion 2}.
+{Translated portion 2}.
+....
+
+The text is: ${escape(input)}`;
+
+
   const requestData = {
-    model: 'gemma2:9b',
+    model: 'gemma3n',
     prompt: prompt,
     stream: false
   };
@@ -24,7 +29,29 @@ function run(input, parameters) {
 
   const res = app.doShellScript(curlCommand);
   const data = JSON.parse(res);
-  const userResponse = app.displayDialog("\u202E" + data.response, { buttons: ["OK", "Cancel"], defaultButton: "OK" });
+
+ function formatMixedText(text) {
+    // First, wrap the entire text in RLO to force RTL direction
+    let formatted = '\u202E' + text + '\u202C';
+    
+    // Then add LRM marks around English words/numbers to display them LTR within RTL context
+    formatted = formatted.replace(/([a-zA-Z0-9]+)/g, '\u200E$1\u200E');
+    
+    // Add word joiner after Persian punctuation to prevent direction issues
+    formatted = formatted.replace(/([\u061F\u060C\u061B])/g, '$1\u2060');
+    
+    return formatted;
+  }
+
+  const userResponse = app.displayDialog(
+    formatMixedText(data.response),
+    {
+      buttons: ["OK", "Cancel"],
+      defaultButton: "OK"
+    }
+  );
+  
   if (userResponse.buttonReturned === "OK") {
   }
 }
+
