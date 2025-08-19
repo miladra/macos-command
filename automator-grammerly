@@ -1,8 +1,8 @@
 function run(input, parameters) {
   const apiEndpoint = "http://localhost:11434/api/generate";
-  const prompt = `Correct following text grammar errors to standard English while maintaining its meaning accurately, reply only with corrected text, avoid ending your responses with any kind of closing remarks. The text is: ${escape(input)}`;
+  const prompt = `Proofread following text and correct any grammatical or typos or punctuation or collocation errors. Reply only the proofread text, avoid ending your responses with any kind of closing remarks. The text is: ${escape(input)}`;
   const requestData = {
-    model: 'gemma3:4b',
+    model: 'gemma3n',
     prompt: prompt,
     stream: false
   };
